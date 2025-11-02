@@ -5,10 +5,12 @@ on:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: ultra-cinema-473010-q9 
+  PROJECT_ID: ultra-cinema-473010-q9
   LOCATION: us-central1
   REPOSITORY: iris-repo
   IMAGE_NAME: iris-api
+  CLUSTER_NAME: iris-cluster
+  ZONE: us-central1-a
 
 jobs:
   build-and-deploy:
@@ -30,7 +32,9 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        tags: |
+          ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
     - name: Get GKE credentials
       uses: google-github-actions/get-gke-credentials@v1
@@ -39,8 +43,9 @@ jobs:
         location: us-central1-a
         project_id: ${{ env.PROJECT_ID }}
 
+
     - name: Deploy to GKE
       run: |
         kubectl set image deployment/iris-api iris-container=${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --record
-        kubectl rollout status deployment/iris-api --timeout=120s
+        kubectl rollout status deployment/iris-api --timeout=180s
 
