@@ -40,7 +40,7 @@ jobs:
       uses: google-github-actions/get-gke-credentials@v1
       with:
         cluster_name: iris-cluster
-        location: us-central1-a
+        location: asia-south1-a
         project_id: ${{ env.PROJECT_ID }}
 
 
